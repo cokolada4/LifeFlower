@@ -17,9 +17,18 @@ public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
 
     public static ItemStack createLifeFlowerItem(LifeFlowerPlugin plugin, UUID ownerUuid, String ownerName) {
-        ItemStack item = new ItemStack(Material.WITHER_ROSE);
+        String materialName = plugin.getConfig().getString("flower-material", "POPPY");
+        Material material = Material.matchMaterial(materialName);
+        if (material == null) material = Material.POPPY;
+
+        ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            int customModelData = plugin.getConfig().getInt("custom-model-data", 0);
+            if (customModelData != 0) {
+                meta.setCustomModelData(customModelData);
+            }
+
             String name = (ownerName != null) ? ownerName : "Unknown";
             meta.displayName(Component.text(name + "'s LifeFlower", NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false));
 
@@ -51,5 +60,12 @@ public class LifeFlowerUtils {
 
     public static boolean isLifeFlower(ItemStack item) {
         return getOwnerUuid(item) != null;
+    }
+
+    public static boolean isFlowerMaterial(Material material, LifeFlowerPlugin plugin) {
+        String materialName = plugin.getConfig().getString("flower-material", "POPPY");
+        Material flowerMaterial = Material.matchMaterial(materialName);
+        if (flowerMaterial == null) flowerMaterial = Material.POPPY;
+        return material == flowerMaterial;
     }
 }

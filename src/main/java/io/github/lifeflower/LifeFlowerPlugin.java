@@ -18,6 +18,8 @@ public class LifeFlowerPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FlowerProtectionListener(manager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, manager), this);
 
+        getCommand("lifeflower").setExecutor(new LifeFlowerCommand(this, manager));
+
         getLogger().info("LifeFlower plugin enabled!");
     }
 

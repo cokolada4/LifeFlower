@@ -7,5 +7,13 @@ punishment-type: SPECTATOR
 # Whether to require direct sky access for the LifeFlower to be valid.
 require-sky-access: true
 
+# The material used for the LifeFlower. Default is POPPY.
+# Note: Changing this won't automatically replace existing flowers in the world.
+flower-material: POPPY
+
+# CustomModelData for the LifeFlower item, useful for resource packs.
+# Set to 0 or remove to disable.
+custom-model-data: 1001
+
 # Message sent to the player when they are eliminated.
 elimination-message: "Your LifeFlower was missing or invalid! You have been eliminated."

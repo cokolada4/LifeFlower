@@ -9,6 +9,11 @@ import java.util.UUID;
 
 public class LifeFlowerManager {
     private final LifeFlowerPlugin plugin;
+
+    public LifeFlowerPlugin getPlugin() {
+        return plugin;
+    }
+
     private final LifeFlowerStore store;
     private final Map<UUID, LifeFlower> flowers;
 
@@ -40,6 +45,11 @@ public class LifeFlowerManager {
         flowers.put(ownerUuid, flower);
         save();
         return flower;
+    }
+
+    public void resetFlower(UUID ownerUuid) {
+        flowers.remove(ownerUuid);
+        save();
     }
 
     public void plantFlower(UUID ownerUuid, Location location) {

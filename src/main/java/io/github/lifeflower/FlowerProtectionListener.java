@@ -105,7 +105,7 @@ public class FlowerProtectionListener implements Listener {
     }
 
     private boolean isLifeFlower(Block block) {
-        if (block.getType() != Material.WITHER_ROSE) return false;
+        if (!LifeFlowerUtils.isFlowerMaterial(block.getType(), manager.getPlugin())) return false;
         return manager.getFlowerAt(block.getLocation()) != null;
     }
 }

@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -41,22 +42,41 @@ public class BlockInteractionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-        if (block.getType() == Material.WITHER_ROSE) {
-            LifeFlower flower = manager.getFlowerAt(block.getLocation());
-            if (flower != null) {
+        if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
+            if (manager.getFlowerAt(block.getLocation()) != null) {
                 event.setDropItems(false);
-                manager.pickupFlower(flower.getOwnerUniqueId());
+                handleFlowerBreak(block, event.getPlayer());
+            }
+        }
+    }
 
-                ItemStack flowerItem = LifeFlowerUtils.createLifeFlowerItem(plugin, flower.getOwnerUniqueId(),
-                        plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName());
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockPhysics(BlockPhysicsEvent event) {
+        Block block = event.getBlock();
+        if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
+            // Check if the flower is still supported
+            if (block.getRelative(0, -1, 0).getType().isAir()) {
+                handleFlowerBreak(block, null);
+                block.setType(Material.AIR);
+            }
+        }
+    }
 
-                block.getWorld().dropItemNaturally(block.getLocation(), flowerItem);
+    private void handleFlowerBreak(Block block, Player breaker) {
+        LifeFlower flower = manager.getFlowerAt(block.getLocation());
+        if (flower != null) {
+            manager.pickupFlower(flower.getOwnerUniqueId());
 
-                Player player = event.getPlayer();
-                if (player.getUniqueId().equals(flower.getOwnerUniqueId())) {
-                    player.sendMessage("You picked up your LifeFlower. You are now in Hardcore mode until you replant it!");
+            ItemStack flowerItem = LifeFlowerUtils.createLifeFlowerItem(plugin, flower.getOwnerUniqueId(),
+                    plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName());
+
+            block.getWorld().dropItemNaturally(block.getLocation(), flowerItem);
+
+            if (breaker != null) {
+                if (breaker.getUniqueId().equals(flower.getOwnerUniqueId())) {
+                    breaker.sendMessage("You picked up your LifeFlower. You are now in Hardcore mode until you replant it!");
                 } else {
-                    player.sendMessage("You picked up " + plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName() + "'s LifeFlower!");
+                    breaker.sendMessage("You picked up " + plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName() + "'s LifeFlower!");
                 }
             }
         }
