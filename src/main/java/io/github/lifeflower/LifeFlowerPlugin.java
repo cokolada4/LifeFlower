@@ -1,6 +1,10 @@
 package io.github.lifeflower;
 
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
 
 public class LifeFlowerPlugin extends JavaPlugin {
     private LifeFlowerStore store;
@@ -18,7 +22,15 @@ public class LifeFlowerPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FlowerProtectionListener(manager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, manager), this);
 
-        getCommand("lifeflower").setExecutor(new LifeFlowerCommand(this, manager));
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Commands commands = event.registrar();
+            commands.register(
+                "lifeflower",
+                "Main command for LifeFlower",
+                List.of("lf"),
+                new LifeFlowerCommand(this, manager)
+            );
+        });
 
         getLogger().info("LifeFlower plugin enabled!");
     }

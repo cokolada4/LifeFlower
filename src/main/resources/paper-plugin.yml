@@ -4,17 +4,3 @@ main: io.github.lifeflower.LifeFlowerPlugin
 api-version: '1.21'
 author: Jules
 description: LifeFlower plugin for Minecraft 1.21.4
-
-commands:
-  lifeflower:
-    description: Main command for LifeFlower
-    aliases: [lf]
-    permission: lifeflower.use
-
-permissions:
-  lifeflower.use:
-    description: Allows using basic lifeflower commands
-    default: true
-  lifeflower.admin:
-    description: Allows using admin lifeflower commands
-    default: op

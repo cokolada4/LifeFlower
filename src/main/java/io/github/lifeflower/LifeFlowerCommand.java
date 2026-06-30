@@ -1,12 +1,12 @@
 package io.github.lifeflower;
 
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class LifeFlowerCommand implements CommandExecutor {
+public class LifeFlowerCommand implements BasicCommand {
     private final LifeFlowerPlugin plugin;
     private final LifeFlowerManager manager;
 
@@ -24,10 +24,11 @@ public class LifeFlowerCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public void execute(@NotNull CommandSourceStack stack, @NotNull String[] args) {
+        CommandSender sender = stack.getSender();
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /" + label + " <new|pardon> <player>", NamedTextColor.RED));
-            return true;
+            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon> <player>", NamedTextColor.RED));
+            return;
         }
 
         String subCommand = args[0].toLowerCase();
@@ -36,7 +37,7 @@ public class LifeFlowerCommand implements CommandExecutor {
         if (subCommand.equals("new")) {
             if (!sender.hasPermission("lifeflower.admin")) {
                 sender.sendMessage(Component.text("No permission.", NamedTextColor.RED));
-                return true;
+                return;
             }
 
             OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
@@ -64,12 +65,11 @@ public class LifeFlowerCommand implements CommandExecutor {
             }
 
             sender.sendMessage(Component.text("Reset LifeFlower for " + targetName, NamedTextColor.GREEN));
-            return true;
 
         } else if (subCommand.equals("pardon")) {
             if (!sender.hasPermission("lifeflower.admin")) {
                 sender.sendMessage(Component.text("No permission.", NamedTextColor.RED));
-                return true;
+                return;
             }
 
             OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
@@ -82,9 +82,11 @@ public class LifeFlowerCommand implements CommandExecutor {
             } else {
                 sender.sendMessage(Component.text(targetName + " is not banned.", NamedTextColor.YELLOW));
             }
-            return true;
         }
+    }
 
-        return false;
+    @Override
+    public boolean canUse(@NotNull CommandSender sender) {
+        return sender.hasPermission("lifeflower.use");
     }
 }
