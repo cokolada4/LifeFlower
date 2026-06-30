@@ -1,0 +1,6 @@
+name: LifeFlower
+version: '${project.version}'
+main: io.github.lifeflower.LifeFlowerPlugin
+api-version: '1.21'
+author: Jules
+description: LifeFlower plugin for Minecraft 1.21.4

@@ -1,0 +1,11 @@
+# LifeFlower Configuration
+
+# The punishment when a player dies without a valid LifeFlower.
+# Options: SPECTATOR, BAN
+punishment-type: SPECTATOR
+
+# Whether to require direct sky access for the LifeFlower to be valid.
+require-sky-access: true
+
+# Message sent to the player when they are eliminated.
+elimination-message: "Your LifeFlower was missing or invalid! You have been eliminated."
