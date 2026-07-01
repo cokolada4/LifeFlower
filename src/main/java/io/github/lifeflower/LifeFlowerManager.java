@@ -23,6 +23,10 @@ public class LifeFlowerManager {
         this.flowers = new HashMap<>();
     }
 
+    public Map<UUID, LifeFlower> getFlowers() {
+        return flowers;
+    }
+
     public void load() {
         store.load();
         flowers.clear();
@@ -52,11 +56,12 @@ public class LifeFlowerManager {
         save();
     }
 
-    public void plantFlower(UUID ownerUuid, Location location) {
+    public void plantFlower(UUID ownerUuid, Location location, UUID entityUuid) {
         LifeFlower flower = flowers.get(ownerUuid);
         if (flower == null) return;
 
         flower.setLocation(location);
+        flower.setEntityUuid(entityUuid);
         flower.setPlanted(true);
         flower.setValid(isValidationEnabled() ? validateSurface(location) : true);
         save();
@@ -67,6 +72,7 @@ public class LifeFlowerManager {
         if (flower == null) return;
 
         flower.setLocation(null);
+        flower.setEntityUuid(null);
         flower.setPlanted(false);
         flower.setValid(false);
         save();

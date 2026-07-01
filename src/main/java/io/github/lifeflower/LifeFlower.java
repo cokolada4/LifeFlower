@@ -6,6 +6,7 @@ import java.util.UUID;
 public class LifeFlower {
     private final UUID ownerUniqueId;
     private Location location;
+    private UUID entityUuid;
     private boolean planted;
     private boolean valid;
 
@@ -25,6 +26,14 @@ public class LifeFlower {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public UUID getEntityUuid() {
+        return entityUuid;
+    }
+
+    public void setEntityUuid(UUID entityUuid) {
+        this.entityUuid = entityUuid;
     }
 
     public boolean isPlanted() {

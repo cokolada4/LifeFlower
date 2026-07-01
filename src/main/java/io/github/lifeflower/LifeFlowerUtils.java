@@ -16,6 +16,10 @@ import java.util.UUID;
 public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
 
+    public static NamespacedKey getOwnerKey() {
+        return OWNER_KEY;
+    }
+
     public static ItemStack createLifeFlowerItem(LifeFlowerPlugin plugin, UUID ownerUuid, String ownerName) {
         String materialName = plugin.getConfig().getString("flower-material", "POPPY");
         Material material = Material.matchMaterial(materialName);

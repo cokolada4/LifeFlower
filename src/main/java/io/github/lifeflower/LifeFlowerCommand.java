@@ -44,10 +44,16 @@ public class LifeFlowerCommand implements BasicCommand {
             UUID uuid = target.getUniqueId();
 
             LifeFlower oldFlower = manager.getFlower(uuid);
-            if (oldFlower != null && oldFlower.isPlanted() && oldFlower.getLocation() != null) {
-                Block block = oldFlower.getLocation().getBlock();
-                if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
-                    block.setType(org.bukkit.Material.AIR);
+            if (oldFlower != null && oldFlower.isPlanted()) {
+                if (oldFlower.getEntityUuid() != null) {
+                    org.bukkit.entity.Entity entity = plugin.getServer().getEntity(oldFlower.getEntityUuid());
+                    if (entity != null) entity.remove();
+                }
+                if (oldFlower.getLocation() != null) {
+                    Block block = oldFlower.getLocation().getBlock();
+                    if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
+                        block.setType(org.bukkit.Material.AIR);
+                    }
                 }
             }
 

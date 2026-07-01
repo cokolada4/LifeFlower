@@ -56,7 +56,7 @@ class LifeFlowerManagerTest {
         when(world.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(air);
         doReturn(false).when(manager).isOccluding(any());
 
-        manager.plantFlower(uuid, loc);
+        manager.plantFlower(uuid, loc, UUID.randomUUID());
 
         LifeFlower flower = manager.getFlower(uuid);
         assertTrue(flower.isPlanted());
@@ -87,7 +87,7 @@ class LifeFlowerManagerTest {
         doReturn(true).when(manager).isOccluding(eq(stone));
         doReturn(false).when(manager).isOccluding(AdditionalMatchers.not(eq(stone)));
 
-        manager.plantFlower(uuid, loc);
+        manager.plantFlower(uuid, loc, UUID.randomUUID());
 
         LifeFlower flower = manager.getFlower(uuid);
         assertFalse(flower.isValid());
