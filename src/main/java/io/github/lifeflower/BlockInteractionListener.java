@@ -1,7 +1,9 @@
 package io.github.lifeflower;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,9 +45,33 @@ public class BlockInteractionListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
-            if (manager.getFlowerAt(block.getLocation()) != null) {
+            LifeFlower flower = manager.getFlowerAt(block.getLocation());
+            if (flower != null) {
+                Player player = event.getPlayer();
+
+                // If the player is NOT the owner, they MUST use the raid tool
+                if (!player.getUniqueId().equals(flower.getOwnerUniqueId())) {
+                    ItemStack tool = player.getInventory().getItemInMainHand();
+                    if (!LifeFlowerUtils.isRaidTool(tool, plugin)) {
+                        event.setCancelled(true);
+
+                        String msg = plugin.getConfig().getString("raid-tool.denied-message");
+                        if (msg != null && !msg.isEmpty()) {
+                            player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
+                        }
+
+                        String soundName = plugin.getConfig().getString("raid-tool.denied-sound");
+                        if (soundName != null && !soundName.isEmpty()) {
+                            try {
+                                player.playSound(player.getLocation(), Sound.valueOf(soundName), 1.0f, 1.0f);
+                            } catch (IllegalArgumentException ignored) {}
+                        }
+                        return;
+                    }
+                }
+
                 event.setDropItems(false);
-                handleFlowerBreak(block, event.getPlayer());
+                handleFlowerBreak(block, player);
             }
         }
     }

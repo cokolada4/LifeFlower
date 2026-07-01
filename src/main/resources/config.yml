@@ -17,3 +17,29 @@ custom-model-data: 1001
 
 # Message sent to the player when they are eliminated.
 elimination-message: "Your LifeFlower was missing or invalid! You have been eliminated."
+
+# Raid Tool Configuration
+raid-tool:
+  material: SHEARS
+  name: "<gradient:gold:yellow>LifeFlower Removal Tool</gradient>"
+  lore:
+    - "<gray>A specialized tool for removing</gray>"
+    - "<gray>another player's LifeFlower.</gray>"
+  enchantment: FORTUNE
+  level: 1
+  exact-match: false
+  # Message sent to a non-owner attempting to break a flower without the tool
+  denied-message: "<red>You must use a LifeFlower Removal Tool to break someone else's LifeFlower!</red>"
+  denied-sound: "ENTITY_VILLAGER_NO"
+
+# Custom Recipe Configuration
+recipe:
+  enabled: true
+  shape:
+    - "DDD"
+    - "DSD"
+    - "DDD"
+  ingredients:
+    D: DIAMOND
+    S: SHEARS
+  output-amount: 1

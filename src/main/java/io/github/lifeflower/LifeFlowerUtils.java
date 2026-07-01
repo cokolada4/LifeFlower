@@ -3,8 +3,11 @@ package io.github.lifeflower;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -15,6 +18,11 @@ import java.util.UUID;
 
 public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
+    private static final NamespacedKey RAID_TOOL_KEY = new NamespacedKey("lifeflower", "raid_tool");
+
+    public static NamespacedKey getOwnerKey() {
+        return OWNER_KEY;
+    }
 
     public static ItemStack createLifeFlowerItem(LifeFlowerPlugin plugin, UUID ownerUuid, String ownerName) {
         String materialName = plugin.getConfig().getString("flower-material", "POPPY");
@@ -67,5 +75,65 @@ public class LifeFlowerUtils {
         Material flowerMaterial = Material.matchMaterial(materialName);
         if (flowerMaterial == null) flowerMaterial = Material.POPPY;
         return material == flowerMaterial;
+    }
+
+    public static ItemStack createRaidTool(LifeFlowerPlugin plugin) {
+        String materialName = plugin.getConfig().getString("raid-tool.material", "SHEARS");
+        Material material = Material.matchMaterial(materialName);
+        if (material == null) material = Material.SHEARS;
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String name = plugin.getConfig().getString("raid-tool.name");
+            if (name != null) {
+                meta.displayName(MiniMessage.miniMessage().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            }
+
+            List<String> loreLines = plugin.getConfig().getStringList("raid-tool.lore");
+            if (!loreLines.isEmpty()) {
+                List<Component> lore = loreLines.stream()
+                        .map(line -> MiniMessage.miniMessage().deserialize(line).decoration(TextDecoration.ITALIC, false))
+                        .toList();
+                meta.lore(lore);
+            }
+
+            String enchName = plugin.getConfig().getString("raid-tool.enchantment", "FORTUNE");
+            Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(enchName.toLowerCase()));
+            if (enchantment != null) {
+                meta.addEnchant(enchantment, plugin.getConfig().getInt("raid-tool.level", 1), true);
+            }
+
+            meta.getPersistentDataContainer().set(RAID_TOOL_KEY, PersistentDataType.BYTE, (byte) 1);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public static boolean isRaidTool(ItemStack item, LifeFlowerPlugin plugin) {
+        if (item == null || item.getType() == Material.AIR) return false;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+
+        if (!meta.getPersistentDataContainer().has(RAID_TOOL_KEY, PersistentDataType.BYTE)) return false;
+
+        // Optionally check enchantments if configured
+        String enchName = plugin.getConfig().getString("raid-tool.enchantment");
+        if (enchName != null) {
+            Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(enchName.toLowerCase()));
+            if (enchantment != null) {
+                int requiredLevel = plugin.getConfig().getInt("raid-tool.level", 1);
+                int currentLevel = meta.getEnchantLevel(enchantment);
+                boolean exactMatch = plugin.getConfig().getBoolean("raid-tool.exact-match", false);
+
+                if (exactMatch) {
+                    if (currentLevel != requiredLevel) return false;
+                } else {
+                    if (currentLevel < requiredLevel) return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

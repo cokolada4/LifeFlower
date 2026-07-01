@@ -4,6 +4,7 @@ import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -27,7 +28,8 @@ public class LifeFlowerCommand implements BasicCommand {
     public void execute(@NotNull CommandSourceStack stack, @NotNull String[] args) {
         CommandSender sender = stack.getSender();
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon> <player>", NamedTextColor.RED));
+            sender.sendMessage(getMessage("usage-raidtool"));
+            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool> <player>", NamedTextColor.YELLOW));
             return;
         }
 
@@ -36,7 +38,7 @@ public class LifeFlowerCommand implements BasicCommand {
 
         if (subCommand.equals("new")) {
             if (!sender.hasPermission("lifeflower.admin")) {
-                sender.sendMessage(Component.text("No permission.", NamedTextColor.RED));
+                sender.sendMessage(getMessage("no-permission"));
                 return;
             }
 
@@ -68,7 +70,7 @@ public class LifeFlowerCommand implements BasicCommand {
 
         } else if (subCommand.equals("pardon")) {
             if (!sender.hasPermission("lifeflower.admin")) {
-                sender.sendMessage(Component.text("No permission.", NamedTextColor.RED));
+                sender.sendMessage(getMessage("no-permission"));
                 return;
             }
 
@@ -82,7 +84,30 @@ public class LifeFlowerCommand implements BasicCommand {
             } else {
                 sender.sendMessage(Component.text(targetName + " is not banned.", NamedTextColor.YELLOW));
             }
+        } else if (subCommand.equals("raidtool")) {
+            if (!sender.hasPermission("lifeflower.command.raidtool")) {
+                sender.sendMessage(getMessage("no-permission"));
+                return;
+            }
+
+            Player target = Bukkit.getPlayer(targetName);
+            if (target == null) {
+                sender.sendMessage(getMessage("player-not-found"));
+                return;
+            }
+
+            ItemStack raidTool = LifeFlowerUtils.createRaidTool(plugin);
+            target.getInventory().addItem(raidTool);
+
+            sender.sendMessage(getMessage("raidtool-given").replaceText(config -> config.matchLiteral("%player%").replacement(target.getName())));
+            target.sendMessage(Component.text("You have received a LifeFlower Removal Tool!", NamedTextColor.LIGHT_PURPLE));
         }
+    }
+
+    private Component getMessage(String key) {
+        String msg = plugin.getMessages().getString(key);
+        if (msg == null) return Component.text("Missing message: " + key, NamedTextColor.RED);
+        return MiniMessage.miniMessage().deserialize(msg);
     }
 
     @Override
