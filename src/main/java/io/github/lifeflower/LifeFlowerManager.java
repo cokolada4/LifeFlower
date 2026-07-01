@@ -56,12 +56,11 @@ public class LifeFlowerManager {
         save();
     }
 
-    public void plantFlower(UUID ownerUuid, Location location, UUID entityUuid) {
+    public void plantFlower(UUID ownerUuid, Location location) {
         LifeFlower flower = flowers.get(ownerUuid);
         if (flower == null) return;
 
         flower.setLocation(location);
-        flower.setEntityUuid(entityUuid);
         flower.setPlanted(true);
         flower.setValid(isValidationEnabled() ? validateSurface(location) : true);
         save();
@@ -72,7 +71,6 @@ public class LifeFlowerManager {
         if (flower == null) return;
 
         flower.setLocation(null);
-        flower.setEntityUuid(null);
         flower.setPlanted(false);
         flower.setValid(false);
         save();

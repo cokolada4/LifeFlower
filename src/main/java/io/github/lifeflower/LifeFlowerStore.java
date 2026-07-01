@@ -43,10 +43,6 @@ public class LifeFlowerStore {
                 flower.setPlanted(section.getBoolean("planted"));
                 flower.setValid(section.getBoolean("valid"));
                 flower.setLocation(section.getLocation("location"));
-                String entityUuidStr = section.getString("entityUuid");
-                if (entityUuidStr != null) {
-                    flower.setEntityUuid(UUID.fromString(entityUuidStr));
-                }
 
                 flowers.put(uuid, flower);
             } catch (IllegalArgumentException e) {
@@ -65,11 +61,6 @@ public class LifeFlowerStore {
             section.set("planted", flower.isPlanted());
             section.set("valid", flower.isValid());
             section.set("location", flower.getLocation());
-            if (flower.getEntityUuid() != null) {
-                section.set("entityUuid", flower.getEntityUuid().toString());
-            } else {
-                section.set("entityUuid", null);
-            }
         }
 
         try {

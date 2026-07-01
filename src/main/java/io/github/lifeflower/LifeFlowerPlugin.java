@@ -19,7 +19,6 @@ public class LifeFlowerPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, manager), this);
         getServer().getPluginManager().registerEvents(new BlockInteractionListener(this, manager), this);
-        getServer().getPluginManager().registerEvents(new EntityInteractionListener(this, manager), this);
         getServer().getPluginManager().registerEvents(new FlowerProtectionListener(manager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, manager), this);
 
