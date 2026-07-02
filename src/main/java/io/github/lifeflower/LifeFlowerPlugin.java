@@ -62,6 +62,19 @@ public class LifeFlowerPlugin extends JavaPlugin {
         getLogger().info("LifeFlower plugin disabled!");
     }
 
+    public boolean reloadPlugin() {
+        try {
+            reloadConfig();
+            loadMessages();
+            startParticleTask();
+            registerRecipe();
+            return true;
+        } catch (Exception e) {
+            getLogger().log(java.util.logging.Level.SEVERE, "Failed to reload plugin configuration", e);
+            return false;
+        }
+    }
+
     private void loadMessages() {
         java.io.File file = new java.io.File(getDataFolder(), "messages.yml");
         if (!file.exists()) {

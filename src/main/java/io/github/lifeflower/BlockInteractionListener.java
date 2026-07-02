@@ -67,6 +67,16 @@ public class BlockInteractionListener implements Listener {
                             } catch (IllegalArgumentException ignored) {}
                         }
                         return;
+                    } else {
+                        // Consume durability
+                        int durability = LifeFlowerUtils.getRaidToolDurability(tool);
+                        durability--;
+                        if (durability <= 0) {
+                            tool.setAmount(0);
+                            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
+                        } else {
+                            LifeFlowerUtils.setRaidToolDurability(tool, durability, plugin);
+                        }
                     }
                 }
 

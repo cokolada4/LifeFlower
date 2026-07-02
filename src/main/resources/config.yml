@@ -46,6 +46,9 @@ raid-tool:
   enchantment: FORTUNE
   level: 1
   exact-match: false
+  durability: 3
+  show-durability-in-lore: true
+  durability-lore-format: "<gray>Remaining uses: <yellow>%uses%</yellow></gray>"
   # Message sent to a non-owner attempting to break a flower without the tool
   denied-message: "<red>You must use a LifeFlower Removal Tool to break someone else's LifeFlower!</red>"
   denied-sound: "ENTITY_VILLAGER_NO"

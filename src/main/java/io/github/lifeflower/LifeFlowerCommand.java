@@ -27,13 +27,32 @@ public class LifeFlowerCommand implements BasicCommand {
     @Override
     public void execute(@NotNull CommandSourceStack stack, @NotNull String[] args) {
         CommandSender sender = stack.getSender();
-        if (args.length < 2) {
-            sender.sendMessage(getMessage("usage-raidtool"));
-            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool> <player>", NamedTextColor.YELLOW));
+        if (args.length == 0) {
+            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool|reload> ...", NamedTextColor.YELLOW));
             return;
         }
 
         String subCommand = args[0].toLowerCase();
+
+        if (subCommand.equals("reload")) {
+            if (!sender.hasPermission("lifeflower.command.reload")) {
+                sender.sendMessage(getMessage("no-permission"));
+                return;
+            }
+
+            if (plugin.reloadPlugin()) {
+                sender.sendMessage(getMessage("reload-success"));
+            } else {
+                sender.sendMessage(getMessage("reload-error"));
+            }
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool> <player>", NamedTextColor.YELLOW));
+            return;
+        }
+
         String targetName = args[1];
 
         if (subCommand.equals("new")) {

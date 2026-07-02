@@ -19,6 +19,7 @@ import java.util.UUID;
 public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
     private static final NamespacedKey RAID_TOOL_KEY = new NamespacedKey("lifeflower", "raid_tool");
+    private static final NamespacedKey DURABILITY_KEY = new NamespacedKey("lifeflower", "durability");
 
     public static NamespacedKey getOwnerKey() {
         return OWNER_KEY;
@@ -90,13 +91,10 @@ public class LifeFlowerUtils {
                 meta.displayName(MiniMessage.miniMessage().deserialize(name).decoration(TextDecoration.ITALIC, false));
             }
 
-            List<String> loreLines = plugin.getConfig().getStringList("raid-tool.lore");
-            if (!loreLines.isEmpty()) {
-                List<Component> lore = loreLines.stream()
-                        .map(line -> MiniMessage.miniMessage().deserialize(line).decoration(TextDecoration.ITALIC, false))
-                        .toList();
-                meta.lore(lore);
-            }
+            int durability = plugin.getConfig().getInt("raid-tool.durability", 3);
+            meta.getPersistentDataContainer().set(DURABILITY_KEY, PersistentDataType.INTEGER, durability);
+
+            updateRaidToolLore(meta, plugin);
 
             String enchName = plugin.getConfig().getString("raid-tool.enchantment", "FORTUNE");
             Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(enchName.toLowerCase()));
@@ -108,6 +106,36 @@ public class LifeFlowerUtils {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    public static void updateRaidToolLore(ItemMeta meta, LifeFlowerPlugin plugin) {
+        List<String> loreLines = plugin.getConfig().getStringList("raid-tool.lore");
+        List<Component> lore = new ArrayList<>();
+
+        for (String line : loreLines) {
+            lore.add(MiniMessage.miniMessage().deserialize(line).decoration(TextDecoration.ITALIC, false));
+        }
+
+        if (plugin.getConfig().getBoolean("raid-tool.show-durability-in-lore", true)) {
+            int durability = meta.getPersistentDataContainer().getOrDefault(DURABILITY_KEY, PersistentDataType.INTEGER, 0);
+            String durFormat = plugin.getConfig().getString("raid-tool.durability-lore-format", "<gray>Remaining uses: <yellow>%uses%</yellow></gray>");
+            lore.add(MiniMessage.miniMessage().deserialize(durFormat.replace("%uses%", String.valueOf(durability))).decoration(TextDecoration.ITALIC, false));
+        }
+
+        meta.lore(lore);
+    }
+
+    public static int getRaidToolDurability(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return 0;
+        return item.getItemMeta().getPersistentDataContainer().getOrDefault(DURABILITY_KEY, PersistentDataType.INTEGER, 0);
+    }
+
+    public static void setRaidToolDurability(ItemStack item, int durability, LifeFlowerPlugin plugin) {
+        if (item == null || !item.hasItemMeta()) return;
+        ItemMeta meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(DURABILITY_KEY, PersistentDataType.INTEGER, durability);
+        updateRaidToolLore(meta, plugin);
+        item.setItemMeta(meta);
     }
 
     public static boolean isRaidTool(ItemStack item, LifeFlowerPlugin plugin) {
