@@ -18,6 +18,24 @@ custom-model-data: 1001
 # Message sent to the player when they are eliminated.
 elimination-message: "Your LifeFlower was missing or invalid! You have been eliminated."
 
+# Particle Effects Configuration
+particles:
+  enabled: true
+  # See materials_list.yml for all valid particle types
+  type: CHERRY_LEAVES
+  # Number of particles spawned each interval
+  count: 3
+  # Spawn interval in ticks (20 ticks = 1 second)
+  interval: 10
+  # Particle spread on X, Y, Z axes
+  spread-x: 0.3
+  spread-y: 0.5
+  spread-z: 0.3
+  # Particle speed
+  speed: 0.05
+  # Whether particles should fall naturally (if the particle supports it)
+  natural-fall: true
+
 # Raid Tool Configuration
 raid-tool:
   material: SHEARS

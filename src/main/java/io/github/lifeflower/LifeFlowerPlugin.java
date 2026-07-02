@@ -17,6 +17,7 @@ public class LifeFlowerPlugin extends JavaPlugin {
     private LifeFlowerStore store;
     private LifeFlowerManager manager;
     private YamlConfiguration messages;
+    private ParticleTask particleTask;
 
     public YamlConfiguration getMessages() {
         return messages;
@@ -26,10 +27,14 @@ public class LifeFlowerPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         loadMessages();
-        registerRecipe();
+        generateReferenceFile();
+
         this.store = new LifeFlowerStore(this);
         this.manager = new LifeFlowerManager(this, store);
         this.manager.load();
+
+        startParticleTask();
+        registerRecipe();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, manager), this);
         getServer().getPluginManager().registerEvents(new BlockInteractionListener(this, manager), this);
@@ -51,6 +56,9 @@ public class LifeFlowerPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (particleTask != null) {
+            particleTask.cancel();
+        }
         getLogger().info("LifeFlower plugin disabled!");
     }
 
@@ -89,5 +97,45 @@ public class LifeFlowerPlugin extends JavaPlugin {
         }
 
         getServer().addRecipe(recipe);
+    }
+
+    private void startParticleTask() {
+        if (particleTask != null) {
+            particleTask.cancel();
+        }
+        particleTask = new ParticleTask(this, manager);
+        long interval = getConfig().getLong("particles.interval", 10);
+        particleTask.runTaskTimer(this, 20L, interval);
+    }
+
+    private void generateReferenceFile() {
+        java.io.File file = new java.io.File(getDataFolder(), "materials_list.yml");
+        if (file.exists()) return;
+
+        YamlConfiguration ref = new YamlConfiguration();
+
+        List<String> materials = java.util.Arrays.stream(Material.values())
+                .map(Material::name)
+                .sorted()
+                .toList();
+        ref.set("Materials", materials);
+
+        List<String> enchantments = java.util.Arrays.stream(org.bukkit.enchantments.Enchantment.values())
+                .map(e -> e.getKey().getKey().toUpperCase())
+                .sorted()
+                .toList();
+        ref.set("Enchantments", enchantments);
+
+        List<String> particles = java.util.Arrays.stream(org.bukkit.Particle.values())
+                .map(org.bukkit.Particle::name)
+                .sorted()
+                .toList();
+        ref.set("Particles", particles);
+
+        try {
+            ref.save(file);
+        } catch (java.io.IOException e) {
+            getLogger().log(java.util.logging.Level.SEVERE, "Could not generate materials_list.yml", e);
+        }
     }
 }
