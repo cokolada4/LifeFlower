@@ -31,12 +31,18 @@ public class LifeFlowerCommand implements BasicCommand {
     @Override
     public void execute(@NotNull CommandSourceStack stack, @NotNull String[] args) {
         CommandSender sender = stack.getSender();
+        String label = "lifeflower"; // Default label for suggestion logic
         if (args.length == 0) {
             sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool|reload> ...", NamedTextColor.YELLOW));
             return;
         }
 
         String subCommand = args[0].toLowerCase();
+
+        if (subCommand.equals("help")) {
+            sendHelpMenu(sender, label);
+            return;
+        }
 
         if (subCommand.equals("reload")) {
             if (!sender.hasPermission("lifeflower.command.reload")) {
@@ -53,7 +59,7 @@ public class LifeFlowerCommand implements BasicCommand {
         }
 
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool> <player>", NamedTextColor.YELLOW));
+            sender.sendMessage(Component.text("Usage: /lifeflower <new|pardon|raidtool|reload|help> ...", NamedTextColor.YELLOW));
             return;
         }
 
@@ -124,6 +130,31 @@ public class LifeFlowerCommand implements BasicCommand {
             sender.sendMessage(getMessage("raidtool-given").replaceText(config -> config.matchLiteral("%player%").replacement(target.getName())));
             target.sendMessage(Component.text("You have received a LifeFlower Removal Tool!", NamedTextColor.LIGHT_PURPLE));
         }
+    }
+
+    private void sendHelpMenu(CommandSender sender, String label) {
+        sender.sendMessage(getMessage("help-header"));
+
+        List<String> subs = List.of("help", "new", "pardon", "raidtool", "reload");
+        String format = plugin.getMessages().getString("help-command-format", "<yellow>%syntax%</yellow><br><gray>%description%</gray><br>");
+
+        for (String sub : subs) {
+            if (hasSubPermission(sender, sub)) {
+                String syntax = "/" + label + " " + sub + (isTargetCommand(sub) ? " <player>" : "");
+                String description = plugin.getMessages().getString("desc-" + sub, "No description.");
+
+                Component cmdComp = MiniMessage.miniMessage().deserialize(
+                    format.replace("%syntax%", syntax).replace("%description%", description)
+                );
+                sender.sendMessage(cmdComp);
+            }
+        }
+
+        sender.sendMessage(getMessage("help-footer"));
+    }
+
+    private boolean isTargetCommand(String sub) {
+        return List.of("new", "pardon", "raidtool").contains(sub);
     }
 
     private Component getMessage(String key) {
