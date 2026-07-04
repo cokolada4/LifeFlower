@@ -1,0 +1,20 @@
+# LifeFlower Messages
+
+no-permission: "<red>You do not have permission to use this command.</red>"
+player-not-found: "<red>Player not found.</red>"
+raidtool-given: "<green>Gave LifeFlower Removal Tool to %player%.</green>"
+usage-raidtool: "<yellow>Usage: /lifeflower raidtool <player></yellow>"
+reload-success: "<green>Plugin configuration reloaded successfully!</green>"
+reload-error: "<red>An error occurred while reloading the configuration. Check the console for details.</red>"
+
+# Help Menu
+help-header: "<gold>========== <light_purple>LifeFlower Help</light_purple> ==========</gold>"
+help-footer: "<gold>=====================================</gold>"
+help-command-format: "<yellow>%syntax%</yellow><br><gray>%description%</gray><br>"
+
+# Command Descriptions
+desc-help: "Shows this help menu."
+desc-new: "Creates a brand new LifeFlower for the player and removes every previous copy."
+desc-pardon: "Revives or pardons a permanently dead player."
+desc-raidtool: "Gives the specified player a LifeFlower Raid Tool."
+desc-reload: "Reloads the plugin configuration without restarting the server."
