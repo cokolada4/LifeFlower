@@ -1,8 +1,17 @@
 package io.github.lifeflower;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -52,8 +61,67 @@ public class LifeFlowerManager {
     }
 
     public void resetFlower(UUID ownerUuid) {
+        // 1. Remove from world (Block)
+        LifeFlower flower = flowers.get(ownerUuid);
+        if (flower != null && flower.isPlanted() && flower.getLocation() != null) {
+            Block block = flower.getLocation().getBlock();
+            if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
+                block.setType(Material.AIR);
+            }
+        }
+
+        // 2. Search online players
+        for (org.bukkit.entity.Player player : Bukkit.getOnlinePlayers()) {
+            removeFlowerFromInventory(player.getInventory(), ownerUuid);
+            removeFlowerFromInventory(player.getEnderChest(), ownerUuid);
+        }
+
+        // 3. Search loaded dropped items
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity instanceof Item itemEntity) {
+                    if (isOwnerOf(itemEntity.getItemStack(), ownerUuid)) {
+                        entity.remove();
+                    }
+                }
+                // 4. Search loaded containers (Blocks)
+                // Note: Getting all tile entities in a world can be expensive, but here we only search loaded chunks.
+            }
+
+            for (org.bukkit.Chunk chunk : world.getLoadedChunks()) {
+                for (BlockState state : chunk.getTileEntities()) {
+                    if (state instanceof Container container) {
+                        removeFlowerFromInventory(container.getInventory(), ownerUuid);
+                    }
+                }
+            }
+        }
+
         flowers.remove(ownerUuid);
         save();
+    }
+
+    private void removeFlowerFromInventory(Inventory inv, UUID ownerUuid) {
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null || item.getType() == Material.AIR) continue;
+
+            if (isOwnerOf(item, ownerUuid)) {
+                inv.setItem(i, null);
+            } else if (item.getItemMeta() instanceof BlockStateMeta bsm) {
+                // Search inside nested containers (Shulker Boxes)
+                if (bsm.getBlockState() instanceof Container container) {
+                    removeFlowerFromInventory(container.getInventory(), ownerUuid);
+                    bsm.setBlockState(container);
+                    item.setItemMeta(bsm);
+                }
+            }
+        }
+    }
+
+    private boolean isOwnerOf(ItemStack item, UUID ownerUuid) {
+        UUID actual = LifeFlowerUtils.getOwnerUuid(item);
+        return ownerUuid.equals(actual);
     }
 
     public void plantFlower(UUID ownerUuid, Location location) {

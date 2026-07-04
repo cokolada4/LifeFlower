@@ -22,6 +22,7 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
+        if (!plugin.isPluginEnabled()) return;
         Player player = event.getEntity();
         UUID uuid = player.getUniqueId();
 

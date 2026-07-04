@@ -22,6 +22,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (isLifeFlower(event.getBlock())) {
             event.setCancelled(true);
         }
@@ -29,6 +30,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockIgnite(BlockIgniteEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (isLifeFlower(event.getBlock())) {
             event.setCancelled(true);
         }
@@ -36,6 +38,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         Iterator<Block> it = event.blockList().iterator();
         while (it.hasNext()) {
             if (isLifeFlower(it.next())) {
@@ -46,6 +49,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (LifeFlowerUtils.isLifeFlower(event.getEntity().getItemStack())) {
             event.setCancelled(true);
         }
@@ -53,6 +57,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         Iterator<Block> it = event.blockList().iterator();
         while (it.hasNext()) {
             if (isLifeFlower(it.next())) {
@@ -63,6 +68,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockFade(BlockFadeEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (isLifeFlower(event.getBlock())) {
             event.setCancelled(true);
         }
@@ -70,6 +76,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (isLifeFlower(event.getToBlock())) {
             event.setCancelled(true);
         }
@@ -77,6 +84,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         for (Block block : event.getBlocks()) {
             if (isLifeFlower(block)) {
                 event.setCancelled(true);
@@ -87,6 +95,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         for (Block block : event.getBlocks()) {
             if (isLifeFlower(block)) {
                 event.setCancelled(true);
@@ -97,6 +106,7 @@ public class FlowerProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
+        if (!manager.getPlugin().isPluginEnabled()) return;
         if (event.getEntity() instanceof Item item) {
             if (LifeFlowerUtils.isLifeFlower(item.getItemStack())) {
                 event.setCancelled(true);

@@ -27,6 +27,7 @@ public class BlockInteractionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (!plugin.isPluginEnabled()) return;
         ItemStack item = event.getItemInHand();
         UUID ownerUuid = LifeFlowerUtils.getOwnerUuid(item);
 
@@ -43,6 +44,7 @@ public class BlockInteractionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (!plugin.isPluginEnabled()) return;
         Block block = event.getBlock();
         if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
             LifeFlower flower = manager.getFlowerAt(block.getLocation());
@@ -88,6 +90,7 @@ public class BlockInteractionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
+        if (!plugin.isPluginEnabled()) return;
         Block block = event.getBlock();
         if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
             // Check if the flower is still supported

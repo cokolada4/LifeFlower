@@ -20,6 +20,8 @@ public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
     private static final NamespacedKey RAID_TOOL_KEY = new NamespacedKey("lifeflower", "raid_tool");
     private static final NamespacedKey DURABILITY_KEY = new NamespacedKey("lifeflower", "durability");
+    private static final NamespacedKey REVIVE_BEACON_KEY = new NamespacedKey("lifeflower", "revive_beacon");
+    private static final NamespacedKey REVIVE_USES_KEY = new NamespacedKey("lifeflower", "revive_uses");
 
     public static NamespacedKey getOwnerKey() {
         return OWNER_KEY;
@@ -135,6 +137,63 @@ public class LifeFlowerUtils {
         ItemMeta meta = item.getItemMeta();
         meta.getPersistentDataContainer().set(DURABILITY_KEY, PersistentDataType.INTEGER, durability);
         updateRaidToolLore(meta, plugin);
+        item.setItemMeta(meta);
+    }
+
+    public static ItemStack createReviveBeacon(LifeFlowerPlugin plugin) {
+        ItemStack item = new ItemStack(Material.BEACON);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String name = plugin.getConfig().getString("revive-beacon.name");
+            if (name != null) {
+                meta.displayName(MiniMessage.miniMessage().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            }
+
+            int uses = plugin.getConfig().getInt("revive-beacon.uses", 1);
+            meta.getPersistentDataContainer().set(REVIVE_USES_KEY, PersistentDataType.INTEGER, uses);
+
+            updateReviveBeaconLore(meta, plugin);
+
+            meta.getPersistentDataContainer().set(REVIVE_BEACON_KEY, PersistentDataType.BYTE, (byte) 1);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public static void updateReviveBeaconLore(ItemMeta meta, LifeFlowerPlugin plugin) {
+        List<String> loreLines = plugin.getConfig().getStringList("revive-beacon.lore");
+        List<Component> lore = new ArrayList<>();
+
+        for (String line : loreLines) {
+            lore.add(MiniMessage.miniMessage().deserialize(line).decoration(TextDecoration.ITALIC, false));
+        }
+
+        if (plugin.getConfig().getBoolean("revive-beacon.show-uses-in-lore", true)) {
+            int uses = meta.getPersistentDataContainer().getOrDefault(REVIVE_USES_KEY, PersistentDataType.INTEGER, 0);
+            String format = plugin.getConfig().getString("revive-beacon.uses-lore-format", "<gray>Remaining uses: <yellow>%uses%</yellow></gray>");
+            lore.add(MiniMessage.miniMessage().deserialize(format.replace("%uses%", String.valueOf(uses))).decoration(TextDecoration.ITALIC, false));
+        }
+
+        meta.lore(lore);
+    }
+
+    public static boolean isReviveBeacon(ItemStack item) {
+        if (item == null || item.getType() != Material.BEACON) return false;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+        return meta.getPersistentDataContainer().has(REVIVE_BEACON_KEY, PersistentDataType.BYTE);
+    }
+
+    public static int getReviveBeaconUses(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return 0;
+        return item.getItemMeta().getPersistentDataContainer().getOrDefault(REVIVE_USES_KEY, PersistentDataType.INTEGER, 0);
+    }
+
+    public static void setReviveBeaconUses(ItemStack item, int uses, LifeFlowerPlugin plugin) {
+        if (item == null || !item.hasItemMeta()) return;
+        ItemMeta meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(REVIVE_USES_KEY, PersistentDataType.INTEGER, uses);
+        updateReviveBeaconLore(meta, plugin);
         item.setItemMeta(meta);
     }
 

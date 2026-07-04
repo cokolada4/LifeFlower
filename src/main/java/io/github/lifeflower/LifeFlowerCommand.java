@@ -2,6 +2,10 @@ package io.github.lifeflower;
 
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -64,14 +68,6 @@ public class LifeFlowerCommand implements BasicCommand {
             OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
             UUID uuid = target.getUniqueId();
 
-            LifeFlower oldFlower = manager.getFlower(uuid);
-            if (oldFlower != null && oldFlower.isPlanted() && oldFlower.getLocation() != null) {
-                Block block = oldFlower.getLocation().getBlock();
-                if (LifeFlowerUtils.isFlowerMaterial(block.getType(), plugin)) {
-                    block.setType(org.bukkit.Material.AIR);
-                }
-            }
-
             manager.resetFlower(uuid);
             LifeFlower flower = manager.createFlower(uuid);
 
@@ -132,5 +128,47 @@ public class LifeFlowerCommand implements BasicCommand {
     @Override
     public boolean canUse(@NotNull CommandSender sender) {
         return sender.hasPermission("lifeflower.use");
+    }
+
+    @Override
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack stack, @NotNull String[] args) {
+        CommandSender sender = stack.getSender();
+        List<String> suggestions = new ArrayList<>();
+
+        if (args.length == 1) {
+            List<String> subs = List.of("new", "pardon", "raidtool", "reload", "help");
+            for (String sub : subs) {
+                if (hasSubPermission(sender, sub)) {
+                    suggestions.add(sub);
+                }
+            }
+        } else if (args.length == 2) {
+            String sub = args[0].toLowerCase();
+            if (sub.equals("new") || sub.equals("raidtool")) {
+                if (hasSubPermission(sender, sub)) {
+                    return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                }
+            } else if (sub.equals("pardon")) {
+                if (hasSubPermission(sender, sub)) {
+                    return Bukkit.getBanList(org.bukkit.BanList.Type.NAME).getEntries().stream()
+                            .map(org.bukkit.BanEntry::getTarget)
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+
+        String currentArg = args[args.length - 1].toLowerCase();
+        return suggestions.stream()
+                .filter(s -> s.toLowerCase().startsWith(currentArg))
+                .collect(Collectors.toList());
+    }
+
+    private boolean hasSubPermission(CommandSender sender, String sub) {
+        return switch (sub) {
+            case "new", "pardon" -> sender.hasPermission("lifeflower.admin");
+            case "raidtool" -> sender.hasPermission("lifeflower.command.raidtool");
+            case "reload" -> sender.hasPermission("lifeflower.command.reload");
+            default -> true;
+        };
     }
 }

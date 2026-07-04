@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 public class LifeFlowerPlugin extends JavaPlugin {
+
+    public boolean isPluginEnabled() {
+        return getConfig().getBoolean("enabled", true);
+    }
+
     private LifeFlowerStore store;
     private LifeFlowerManager manager;
     private YamlConfiguration messages;
@@ -38,6 +43,7 @@ public class LifeFlowerPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, manager), this);
         getServer().getPluginManager().registerEvents(new BlockInteractionListener(this, manager), this);
+        getServer().getPluginManager().registerEvents(new ReviveListener(this, manager), this);
         getServer().getPluginManager().registerEvents(new FlowerProtectionListener(manager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, manager), this);
 
@@ -84,6 +90,11 @@ public class LifeFlowerPlugin extends JavaPlugin {
     }
 
     public void registerRecipe() {
+        registerRaidToolRecipe();
+        registerReviveBeaconRecipe();
+    }
+
+    private void registerRaidToolRecipe() {
         if (!getConfig().getBoolean("recipe.enabled", true)) return;
 
         NamespacedKey key = new NamespacedKey(this, "raid_tool");
@@ -97,6 +108,35 @@ public class LifeFlowerPlugin extends JavaPlugin {
         recipe.shape(shape.toArray(new String[0]));
 
         ConfigurationSection ingredients = getConfig().getConfigurationSection("recipe.ingredients");
+        if (ingredients != null) {
+            for (String charKey : ingredients.getKeys(false)) {
+                String matName = ingredients.getString(charKey);
+                if (matName != null) {
+                    Material mat = Material.matchMaterial(matName);
+                    if (mat != null) {
+                        recipe.setIngredient(charKey.charAt(0), mat);
+                    }
+                }
+            }
+        }
+
+        getServer().addRecipe(recipe);
+    }
+
+    private void registerReviveBeaconRecipe() {
+        if (!getConfig().getBoolean("revive-beacon-recipe.enabled", true)) return;
+
+        NamespacedKey key = new NamespacedKey(this, "revive_beacon");
+        getServer().removeRecipe(key);
+
+        ItemStack result = LifeFlowerUtils.createReviveBeacon(this);
+        result.setAmount(getConfig().getInt("revive-beacon-recipe.output-amount", 1));
+
+        ShapedRecipe recipe = new ShapedRecipe(key, result);
+        List<String> shape = getConfig().getStringList("revive-beacon-recipe.shape");
+        recipe.shape(shape.toArray(new String[0]));
+
+        ConfigurationSection ingredients = getConfig().getConfigurationSection("revive-beacon-recipe.ingredients");
         if (ingredients != null) {
             for (String charKey : ingredients.getKeys(false)) {
                 String matName = ingredients.getString(charKey);

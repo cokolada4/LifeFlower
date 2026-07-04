@@ -19,6 +19,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        if (!plugin.isPluginEnabled()) return;
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 

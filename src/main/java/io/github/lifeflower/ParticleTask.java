@@ -16,6 +16,7 @@ public class ParticleTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!plugin.isPluginEnabled()) return;
         FileConfiguration config = plugin.getConfig();
         if (!config.getBoolean("particles.enabled", true)) return;
 

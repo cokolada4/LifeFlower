@@ -1,8 +1,11 @@
 # LifeFlower Configuration
 
+# Global plugin enable/disable switch
+enabled: true
+
 # The punishment when a player dies without a valid LifeFlower.
 # Options: SPECTATOR, BAN
-punishment-type: SPECTATOR
+punishment-type: BAN
 
 # Whether to require direct sky access for the LifeFlower to be valid.
 require-sky-access: true
@@ -22,14 +25,14 @@ elimination-message: "Your LifeFlower was missing or invalid! You have been elim
 particles:
   enabled: true
   # See materials_list.yml for all valid particle types
-  type: CHERRY_LEAVES
+  type: HAPPY_VILLAGER
   # Number of particles spawned each interval
   count: 3
   # Spawn interval in ticks (20 ticks = 1 second)
   interval: 10
   # Particle spread on X, Y, Z axes
   spread-x: 0.3
-  spread-y: 0.5
+  spread-y: 0.3
   spread-z: 0.3
   # Particle speed
   speed: 0.05
@@ -63,4 +66,30 @@ recipe:
   ingredients:
     D: DIAMOND
     S: SHEARS
+  output-amount: 1
+
+# Revive Beacon Configuration
+revive-beacon:
+  name: "<gradient:aqua:blue>Revive Beacon</gradient>"
+  lore:
+    - "<gray>Use this to revive a</gray>"
+    - "<gray>permanently eliminated player.</gray>"
+  uses: 1
+  show-uses-in-lore: true
+  uses-lore-format: "<gray>Remaining uses: <yellow>%uses%</yellow></gray>"
+  gui-title: "Select a player to revive"
+  no-dead-players-message: "<red>There are no dead players to revive!</red>"
+  revive-success-sender: "<green>You have revived %player%!</green>"
+  revive-success-target: "<green>You have been revived by %sender%!</green>"
+
+# Revive Beacon Recipe
+revive-beacon-recipe:
+  enabled: true
+  shape:
+    - "DDD"
+    - "DBD"
+    - "DDD"
+  ingredients:
+    D: DIAMOND
+    B: BEACON
   output-amount: 1
