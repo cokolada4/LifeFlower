@@ -157,6 +157,8 @@ public class LifeFlowerCommand implements BasicCommand {
             }
         }
 
+        if (args.length == 0) return suggestions;
+
         String currentArg = args[args.length - 1].toLowerCase();
         return suggestions.stream()
                 .filter(s -> s.toLowerCase().startsWith(currentArg))
