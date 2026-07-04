@@ -69,9 +69,10 @@ public class LifeFlowerCommand implements BasicCommand {
             UUID uuid = target.getUniqueId();
 
             manager.resetFlower(uuid);
-            LifeFlower flower = manager.createFlower(uuid);
+            LifeFlower flower = manager.getFlower(uuid);
+            if (flower == null) flower = manager.createFlower(uuid);
 
-            ItemStack item = LifeFlowerUtils.createLifeFlowerItem(plugin, uuid, target.getName());
+            ItemStack item = LifeFlowerUtils.createLifeFlowerItem(plugin, uuid, target.getName(), flower.getFlowerUuid());
 
             if (target.isOnline()) {
                 Player onlineTarget = target.getPlayer();
@@ -79,6 +80,9 @@ public class LifeFlowerCommand implements BasicCommand {
                     onlineTarget.getInventory().addItem(item);
                     onlineTarget.sendMessage(Component.text("Your LifeFlower has been reset by an admin!", NamedTextColor.LIGHT_PURPLE));
                 }
+            } else {
+                flower.setAwaitingRevivalItem(true);
+                manager.save();
             }
 
             sender.sendMessage(Component.text("Reset LifeFlower for " + targetName, NamedTextColor.GREEN));
@@ -92,9 +96,12 @@ public class LifeFlowerCommand implements BasicCommand {
             OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
 
             // Logic to unban
-            boolean pardoned = Bukkit.getBanList(org.bukkit.BanList.Type.NAME).isBanned(target.getName());
-            if (pardoned) {
-                Bukkit.getBanList(org.bukkit.BanList.Type.NAME).pardon(target.getName());
+            LifeFlower flower = manager.getFlower(target.getUniqueId());
+            if (flower != null && flower.isEliminated()) {
+                if (target.getName() != null) {
+                    Bukkit.getBanList(org.bukkit.BanList.Type.NAME).pardon(target.getName());
+                }
+                manager.revivePlayer(target.getUniqueId());
                 sender.sendMessage(Component.text("Pardoned " + targetName, NamedTextColor.GREEN));
             } else {
                 sender.sendMessage(Component.text(targetName + " is not banned.", NamedTextColor.YELLOW));

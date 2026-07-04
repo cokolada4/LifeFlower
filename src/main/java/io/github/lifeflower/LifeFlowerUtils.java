@@ -18,6 +18,7 @@ import java.util.UUID;
 
 public class LifeFlowerUtils {
     private static final NamespacedKey OWNER_KEY = new NamespacedKey("lifeflower", "owner");
+    private static final NamespacedKey FLOWER_ID_KEY = new NamespacedKey("lifeflower", "flower_id");
     private static final NamespacedKey RAID_TOOL_KEY = new NamespacedKey("lifeflower", "raid_tool");
     private static final NamespacedKey DURABILITY_KEY = new NamespacedKey("lifeflower", "durability");
     private static final NamespacedKey REVIVE_BEACON_KEY = new NamespacedKey("lifeflower", "revive_beacon");
@@ -27,7 +28,7 @@ public class LifeFlowerUtils {
         return OWNER_KEY;
     }
 
-    public static ItemStack createLifeFlowerItem(LifeFlowerPlugin plugin, UUID ownerUuid, String ownerName) {
+    public static ItemStack createLifeFlowerItem(LifeFlowerPlugin plugin, UUID ownerUuid, String ownerName, UUID flowerUuid) {
         String materialName = plugin.getConfig().getString("flower-material", "POPPY");
         Material material = Material.matchMaterial(materialName);
         if (material == null) material = Material.POPPY;
@@ -49,9 +50,25 @@ public class LifeFlowerUtils {
             meta.lore(lore);
 
             meta.getPersistentDataContainer().set(OWNER_KEY, PersistentDataType.STRING, ownerUuid.toString());
+            meta.getPersistentDataContainer().set(FLOWER_ID_KEY, PersistentDataType.STRING, flowerUuid.toString());
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    public static UUID getFlowerUuid(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return null;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+
+        String uuidStr = meta.getPersistentDataContainer().get(FLOWER_ID_KEY, PersistentDataType.STRING);
+        if (uuidStr == null) return null;
+
+        try {
+            return UUID.fromString(uuidStr);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public static UUID getOwnerUuid(ItemStack item) {

@@ -107,7 +107,8 @@ public class BlockInteractionListener implements Listener {
             manager.pickupFlower(flower.getOwnerUniqueId());
 
             ItemStack flowerItem = LifeFlowerUtils.createLifeFlowerItem(plugin, flower.getOwnerUniqueId(),
-                    plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName());
+                    plugin.getServer().getOfflinePlayer(flower.getOwnerUniqueId()).getName(),
+                    flower.getFlowerUuid());
 
             block.getWorld().dropItemNaturally(block.getLocation(), flowerItem);
 

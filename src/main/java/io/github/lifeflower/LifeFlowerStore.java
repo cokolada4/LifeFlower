@@ -42,6 +42,12 @@ public class LifeFlowerStore {
                 LifeFlower flower = new LifeFlower(uuid);
                 flower.setPlanted(section.getBoolean("planted"));
                 flower.setValid(section.getBoolean("valid"));
+                flower.setAwaitingRevivalItem(section.getBoolean("awaitingRevivalItem", false));
+                flower.setEliminated(section.getBoolean("eliminated", false));
+                String flowerUuidStr = section.getString("flowerUuid");
+                if (flowerUuidStr != null) {
+                    flower.setFlowerUuid(UUID.fromString(flowerUuidStr));
+                }
                 flower.setLocation(section.getLocation("location"));
 
                 flowers.put(uuid, flower);
@@ -60,6 +66,9 @@ public class LifeFlowerStore {
             ConfigurationSection section = config.createSection(uuid.toString());
             section.set("planted", flower.isPlanted());
             section.set("valid", flower.isValid());
+            section.set("awaitingRevivalItem", flower.isAwaitingRevivalItem());
+            section.set("eliminated", flower.isEliminated());
+            section.set("flowerUuid", flower.getFlowerUuid().toString());
             section.set("location", flower.getLocation());
         }
 

@@ -15,28 +15,29 @@ import java.util.List;
 
 public class ReviveGUI {
 
-    public static void open(Player player, LifeFlowerPlugin plugin) {
-        List<OfflinePlayer> bannedPlayers = new ArrayList<>();
+    public static void open(Player player, LifeFlowerPlugin plugin, LifeFlowerManager manager) {
+        List<OfflinePlayer> deadPlayers = new ArrayList<>();
         for (OfflinePlayer offline : Bukkit.getOfflinePlayers()) {
-            if (Bukkit.getBanList(org.bukkit.BanList.Type.NAME).isBanned(offline.getName())) {
-                bannedPlayers.add(offline);
+            LifeFlower flower = manager.getFlower(offline.getUniqueId());
+            if (flower != null && flower.isEliminated()) {
+                deadPlayers.add(offline);
             }
         }
 
-        if (bannedPlayers.isEmpty()) {
+        if (deadPlayers.isEmpty()) {
             String msg = plugin.getConfig().getString("revive-beacon.no-dead-players-message", "<red>There are no dead players to revive!</red>");
             player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
             return;
         }
 
-        int size = ((bannedPlayers.size() / 9) + 1) * 9;
+        int size = ((deadPlayers.size() / 9) + 1) * 9;
         if (size > 54) size = 54;
 
         String title = plugin.getConfig().getString("revive-beacon.gui-title", "Select a player to revive");
-        Inventory inv = Bukkit.createInventory(null, size, MiniMessage.miniMessage().deserialize(title));
+        Inventory inv = Bukkit.createInventory(new ReviveInventoryHolder(), size, MiniMessage.miniMessage().deserialize(title));
 
-        for (int i = 0; i < bannedPlayers.size() && i < 54; i++) {
-            OfflinePlayer target = bannedPlayers.get(i);
+        for (int i = 0; i < deadPlayers.size() && i < 54; i++) {
+            OfflinePlayer target = deadPlayers.get(i);
             ItemStack head = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             if (meta != null) {

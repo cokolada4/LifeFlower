@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
@@ -24,10 +25,21 @@ public class PlayerJoinListener implements Listener {
         UUID uuid = player.getUniqueId();
 
         LifeFlower flower = manager.getFlower(uuid);
-        if (flower == null) {
-            manager.createFlower(uuid);
-            ItemStack flowerItem = LifeFlowerUtils.createLifeFlowerItem(plugin, uuid, player.getName());
-            player.getInventory().addItem(flowerItem);
+        if (flower == null || flower.isAwaitingRevivalItem()) {
+            if (flower == null) {
+                flower = manager.createFlower(uuid);
+            } else {
+                flower.setAwaitingRevivalItem(false);
+                manager.save();
+            }
+
+            ItemStack flowerItem = LifeFlowerUtils.createLifeFlowerItem(plugin, uuid, player.getName(), flower.getFlowerUuid());
+            Map<Integer, ItemStack> remaining = player.getInventory().addItem(flowerItem);
+            if (!remaining.isEmpty()) {
+                for (ItemStack item : remaining.values()) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), item);
+                }
+            }
             player.sendMessage("You have received your LifeFlower! Keep it safe.");
         }
     }

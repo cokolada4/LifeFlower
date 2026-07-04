@@ -60,6 +60,23 @@ public class LifeFlowerManager {
         return flower;
     }
 
+    public void revivePlayer(UUID uuid) {
+        resetFlower(uuid);
+        LifeFlower flower = createFlower(uuid);
+        flower.setAwaitingRevivalItem(true);
+        flower.setEliminated(false);
+        save();
+    }
+
+    public void eliminatePlayer(UUID uuid) {
+        LifeFlower flower = flowers.get(uuid);
+        if (flower != null) {
+            flower.setEliminated(true);
+        }
+        resetFlower(uuid);
+        save();
+    }
+
     public void resetFlower(UUID ownerUuid) {
         // 1. Remove from world (Block)
         LifeFlower flower = flowers.get(ownerUuid);
@@ -97,7 +114,13 @@ public class LifeFlowerManager {
             }
         }
 
-        flowers.remove(ownerUuid);
+        LifeFlower flowerData = flowers.get(ownerUuid);
+        if (flowerData != null) {
+            flowerData.setFlowerUuid(UUID.randomUUID());
+            flowerData.setPlanted(false);
+            flowerData.setLocation(null);
+            flowerData.setValid(false);
+        }
         save();
     }
 

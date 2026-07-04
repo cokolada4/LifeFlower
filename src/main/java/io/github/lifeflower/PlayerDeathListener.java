@@ -32,15 +32,22 @@ public class PlayerDeathListener implements Listener {
         boolean valid = flower != null && flower.isPlanted() && manager.validateSurface(flower.getLocation());
 
         if (!valid) {
-            String punishment = plugin.getConfig().getString("punishment-type", "SPECTATOR");
             String message = plugin.getConfig().getString("elimination-message", "Your LifeFlower was missing or invalid! You have been eliminated.");
 
-            if ("BAN".equalsIgnoreCase(punishment)) {
-                player.banPlayer(message);
-            } else {
-                player.setGameMode(GameMode.SPECTATOR);
-                player.sendMessage(Component.text(message, NamedTextColor.RED));
-            }
+            // 1. Completely remove player's flower from the server and set eliminated status
+            manager.eliminatePlayer(uuid);
+
+            // 2. Schedule ban for next tick to allow death processing to finish
+            String punishment = plugin.getConfig().getString("punishment-type", "BAN");
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if ("BAN".equalsIgnoreCase(punishment)) {
+                    player.banPlayer(message);
+                } else {
+                    player.setGameMode(GameMode.SPECTATOR);
+                    player.sendMessage(Component.text(message, NamedTextColor.RED));
+                }
+            }, 1L);
+
             pluginBroadcast(player.getName() + " has been eliminated because their LifeFlower was not valid!");
         }
     }

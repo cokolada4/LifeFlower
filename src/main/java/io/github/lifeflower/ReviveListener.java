@@ -32,15 +32,14 @@ public class ReviveListener implements Listener {
         ItemStack item = event.getItem();
         if (LifeFlowerUtils.isReviveBeacon(item)) {
             event.setCancelled(true);
-            ReviveGUI.open(event.getPlayer(), plugin);
+            ReviveGUI.open(event.getPlayer(), plugin, manager);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!plugin.isPluginEnabled()) return;
-        String title = plugin.getConfig().getString("revive-beacon.gui-title", "Select a player to revive");
-        if (!event.getView().title().equals(MiniMessage.miniMessage().deserialize(title))) return;
+        if (!(event.getInventory().getHolder() instanceof ReviveInventoryHolder)) return;
 
         event.setCancelled(true);
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() != Material.PLAYER_HEAD) return;
@@ -53,13 +52,19 @@ public class ReviveListener implements Listener {
         OfflinePlayer target = meta.getOwningPlayer();
         String targetName = target.getName();
 
-        if (targetName != null && Bukkit.getBanList(org.bukkit.BanList.Type.NAME).isBanned(targetName)) {
-            Bukkit.getBanList(org.bukkit.BanList.Type.NAME).pardon(targetName);
-            manager.resetFlower(target.getUniqueId());
+        LifeFlower flower = manager.getFlower(target.getUniqueId());
+        if (flower != null && flower.isEliminated()) {
+            if (target.getName() != null) {
+                Bukkit.getBanList(org.bukkit.BanList.Type.NAME).pardon(target.getName());
+            }
+            manager.revivePlayer(target.getUniqueId());
 
             // Consume beacon use
-            ItemStack beacon = reviver.getInventory().getItemInMainHand();
-            if (LifeFlowerUtils.isReviveBeacon(beacon)) {
+            ItemStack main = reviver.getInventory().getItemInMainHand();
+            ItemStack off = reviver.getInventory().getItemInOffHand();
+            ItemStack beacon = LifeFlowerUtils.isReviveBeacon(main) ? main : LifeFlowerUtils.isReviveBeacon(off) ? off : null;
+
+            if (beacon != null) {
                 int uses = LifeFlowerUtils.getReviveBeaconUses(beacon);
                 uses--;
                 if (uses <= 0) {
