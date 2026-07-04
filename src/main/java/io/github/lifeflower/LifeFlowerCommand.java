@@ -133,36 +133,36 @@ public class LifeFlowerCommand implements BasicCommand {
     @Override
     public @NotNull Collection<String> suggest(@NotNull CommandSourceStack stack, @NotNull String[] args) {
         CommandSender sender = stack.getSender();
-        List<String> suggestions = new ArrayList<>();
 
-        if (args.length == 1) {
-            List<String> subs = List.of("new", "pardon", "raidtool", "reload", "help");
-            for (String sub : subs) {
-                if (hasSubPermission(sender, sub)) {
-                    suggestions.add(sub);
-                }
-            }
-        } else if (args.length == 2) {
+        if (args.length <= 1) {
+            String currentArg = args.length == 0 ? "" : args[0].toLowerCase();
+            return List.of("new", "pardon", "raidtool", "reload", "help").stream()
+                    .filter(sub -> hasSubPermission(sender, sub))
+                    .filter(sub -> sub.toLowerCase().startsWith(currentArg))
+                    .collect(Collectors.toList());
+        }
+
+        if (args.length == 2) {
             String sub = args[0].toLowerCase();
+            String currentArg = args[1].toLowerCase();
             if (sub.equals("new") || sub.equals("raidtool")) {
                 if (hasSubPermission(sender, sub)) {
-                    return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                    return Bukkit.getOnlinePlayers().stream()
+                            .map(Player::getName)
+                            .filter(name -> name.toLowerCase().startsWith(currentArg))
+                            .collect(Collectors.toList());
                 }
             } else if (sub.equals("pardon")) {
                 if (hasSubPermission(sender, sub)) {
                     return Bukkit.getBanList(org.bukkit.BanList.Type.NAME).getEntries().stream()
                             .map(org.bukkit.BanEntry::getTarget)
+                            .filter(name -> name != null && name.toLowerCase().startsWith(currentArg))
                             .collect(Collectors.toList());
                 }
             }
         }
 
-        if (args.length == 0) return suggestions;
-
-        String currentArg = args[args.length - 1].toLowerCase();
-        return suggestions.stream()
-                .filter(s -> s.toLowerCase().startsWith(currentArg))
-                .collect(Collectors.toList());
+        return List.of();
     }
 
     private boolean hasSubPermission(CommandSender sender, String sub) {
